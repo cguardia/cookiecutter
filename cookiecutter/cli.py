@@ -59,8 +59,12 @@ def version_msg():
     u'-o', u'--output-dir', default='.', type=click.Path(),
     help=u'Where to output the generated project dir into'
 )
+@click.option(
+    u'-f', u'--setup-venv', is_flag=True,
+    help=u'Setup a virtual environment inside the project dir'
+)
 def main(template, no_input, checkout, verbose, replay, overwrite_if_exists,
-         output_dir):
+         output_dir, setup_venv):
     """Create a project from a Cookiecutter project template (TEMPLATE)."""
     if verbose:
         logging.basicConfig(
@@ -79,7 +83,8 @@ def main(template, no_input, checkout, verbose, replay, overwrite_if_exists,
             template, checkout, no_input,
             replay=replay,
             overwrite_if_exists=overwrite_if_exists,
-            output_dir=output_dir
+            output_dir=output_dir,
+            setup_venv=setup_venv
         )
     except (OutputDirExistsException, InvalidModeException) as e:
         click.echo(e)

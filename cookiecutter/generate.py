@@ -15,6 +15,7 @@ import json
 import logging
 import os
 import shutil
+import virtualenv
 
 from jinja2 import FileSystemLoader, Template
 from jinja2.environment import Environment
@@ -175,7 +176,7 @@ def generate_file(project_dir, infile, context, env):
 
 
 def render_and_create_dir(dirname, context, output_dir,
-                          overwrite_if_exists=False):
+                          overwrite_if_exists=False, setup_venv=False):
     """
     Renders the name of a directory, creates the directory, and
     returns its path.
@@ -203,6 +204,8 @@ def render_and_create_dir(dirname, context, output_dir,
             raise OutputDirExistsException(msg)
 
     make_sure_path_exists(dir_to_create)
+    if setup_venv:
+        virtualenv.create_environment(dir_to_create)
     return dir_to_create
 
 
@@ -217,7 +220,7 @@ def ensure_dir_is_templated(dirname):
 
 
 def generate_files(repo_dir, context=None, output_dir='.',
-                   overwrite_if_exists=False):
+                   overwrite_if_exists=False, setup_venv=False):
     """
     Renders the templates and saves them to files.
 
@@ -226,6 +229,7 @@ def generate_files(repo_dir, context=None, output_dir='.',
     :param output_dir: Where to output the generated project dir into.
     :param overwrite_if_exists: Overwrite the contents of the output directory
         if it exists
+    :param setup_venv: Whether to set up a virtualenv inside output directory.
     """
 
     template_dir = find_template(repo_dir)
@@ -237,7 +241,8 @@ def generate_files(repo_dir, context=None, output_dir='.',
     project_dir = render_and_create_dir(unrendered_dir,
                                         context,
                                         output_dir,
-                                        overwrite_if_exists)
+                                        overwrite_if_exists,
+                                        setup_venv)
 
     # We want the Jinja path and the OS paths to match. Consequently, we'll:
     #   + CD to the template folder
